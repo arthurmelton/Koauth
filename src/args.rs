@@ -24,6 +24,10 @@ pub struct Args {
     #[arg(short, long, default_value_t = 23600)]
     pub port: u16,
 
+    /// Controll if accounts should be made if the username has not been registered
+    #[arg(short, long, default_value_t = true)]
+    pub create: bool,
+
     /// The path to the ko server exe
     #[arg(long, default_value_t = String::from("KnockoutCityServer.exe"))]
     pub ko_path: String,

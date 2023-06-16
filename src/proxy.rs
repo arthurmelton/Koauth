@@ -77,11 +77,20 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                                                 INCORRECT_PASSWORD.to_string(),
                                                             )
                                                             .await?;
-                                                            return Ok(());
                                                         }
                                                     }
                                                     None => {
-                                                        set_password(username, password).await?
+                                                        if ARGS.create {
+                                                            set_password(username, password).await?
+                                                        }
+                                                        else {
+                                                            write(
+                                                                &mut inbound,
+                                                                true,
+                                                                USERNAME_NOT_REGISTERED.to_string(),
+                                                            )
+                                                            .await?;
+                                                        }
                                                     }
                                                 }
                                                 json["credentials"]

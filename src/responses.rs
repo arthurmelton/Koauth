@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref INCORRECT_PASSWORD: String = response!("403 Forbidden", "{\"error\":\"Forbidden\",\"message\":\"Incorect password\"}", "Content-Type: application/json");
+    pub static ref USERNAME_NOT_REGISTERED: String = response!("403 Forbidden", "{\"error\":\"Forbidden\",\"message\":\"Username has not been registered\"}", "Content-Type: application/json");
     pub static ref NO_PASSWORD_SPECIFIED: String = response!("400 Bad Request", "{\"error\":\"Bad Request\",\"message\":\"No password specified\"}", "Content-Type: application/json");
     pub static ref NO_USERNAME_SPECIFIED: String = response!("400 Bad Request", "{\"error\":\"Bad Request\",\"message\":\"No username specified\"}", "Content-Type: application/json");
     pub static ref BADLY_FORMATED_HTML: String = response!("400 Bad Request", "{\"error\":\"Bad Request\",\"message\":\"Badly formatted html\"}", "Content-Type: application/json");
