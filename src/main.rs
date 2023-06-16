@@ -3,7 +3,7 @@ use std::process::exit;
 
 mod args;
 mod db;
-mod responces;
+mod responses;
 mod proxy;
 mod launch;
 

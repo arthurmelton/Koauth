@@ -4,7 +4,7 @@ use tokio::net::{TcpStream};
 use std::str;
 use crate::args::ARGS;
 use crate::db::{get_password, set_password};
-use crate::responces::*;
+use crate::responses::*;
 use crate::{HEADER_MAX_LENGTH, PAYLOAD_MAX_LENGTH};
 use serde_json::Value;
 use std::io::{Error, ErrorKind};
