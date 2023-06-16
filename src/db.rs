@@ -40,9 +40,13 @@ pub async fn get_password(username: String) -> Option<u64> {
 }
 
 pub async fn set_password(username: String, password: u64) -> anyhow::Result<()> {
-    query!(r#"INSERT INTO passwords (username, password) VALUES ( $1 , $2 ) RETURNING id"#, username, BigDecimal::from(password))
-        .fetch_one(POOL.get().await)
-        .await?;
+    query!(
+        r#"INSERT INTO passwords (username, password) VALUES ( $1 , $2 ) RETURNING id"#,
+        username,
+        BigDecimal::from(password)
+    )
+    .fetch_one(POOL.get().await)
+    .await?;
 
     Ok(())
 }

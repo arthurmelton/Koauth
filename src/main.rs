@@ -1,11 +1,11 @@
-use tokio::net::TcpListener;
 use std::process::exit;
+use tokio::net::TcpListener;
 
 mod args;
 mod db;
-mod responses;
-mod proxy;
 mod launch;
+mod proxy;
+mod responses;
 
 const PAYLOAD_MAX_LENGTH: usize = 16384;
 const HEADER_MAX_LENGTH: usize = 16384;
@@ -25,7 +25,7 @@ async fn main() {
             )
         });
 
-    tokio::spawn(async{
+    tokio::spawn(async {
         let _ = launch::launch().await;
         println!("Make sure that your configuration and right and should be working. The server has exited");
         exit(1);
@@ -69,11 +69,8 @@ async fn main() {
     println!("        **NOT** TCP - {}", args::ARGS.ko_port.unwrap());
 
     loop {
-        match listener.accept().await {
-            Ok((socket, _)) => {
-                let _ = tokio::spawn(async{proxy::handle_request(socket).await});
-            },
-            _ => {}
+        if let Ok((socket, _)) = listener.accept().await {
+            tokio::spawn(async { proxy::handle_request(socket).await });
         }
     }
 }
