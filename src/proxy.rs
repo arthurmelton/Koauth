@@ -82,8 +82,7 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                                     None => {
                                                         if ARGS.create {
                                                             set_password(username, password).await?
-                                                        }
-                                                        else {
+                                                        } else {
                                                             write(
                                                                 &mut inbound,
                                                                 true,
