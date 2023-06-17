@@ -4,16 +4,15 @@ use tokio::net::TcpListener;
 mod args;
 mod db;
 mod launch;
+mod log;
 mod proxy;
 mod responses;
-mod log;
 
 const PAYLOAD_MAX_LENGTH: usize = 16384;
 const HEADER_MAX_LENGTH: usize = 16384;
 
 #[tokio::main]
 async fn main() {
-
     db::create_passwords()
         .await
         .expect("Failed to add the table 'passwords' in your database");

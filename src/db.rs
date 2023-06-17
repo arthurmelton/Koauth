@@ -31,18 +31,21 @@ CREATE TABLE IF NOT EXISTS passwords
 }
 
 pub async fn get_password(username: String) -> Option<u64> {
-    query!(r#"SELECT * FROM passwords WHERE username = $1"#, username.to_lowwercase())
-        .fetch_one(POOL.get().await)
-        .await
-        .ok()?
-        .password
-        .to_u64()
+    query!(
+        r#"SELECT * FROM passwords WHERE username = $1"#,
+        username.to_lowercase()
+    )
+    .fetch_one(POOL.get().await)
+    .await
+    .ok()?
+    .password
+    .to_u64()
 }
 
 pub async fn set_password(username: String, password: u64) -> anyhow::Result<()> {
     query!(
         r#"INSERT INTO passwords (username, password) VALUES ( $1 , $2 ) RETURNING id"#,
-        username.to_lowwercase(),
+        username.to_lowercase(),
         BigDecimal::from(password)
     )
     .fetch_one(POOL.get().await)
