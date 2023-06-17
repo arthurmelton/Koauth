@@ -6,12 +6,14 @@ mod db;
 mod launch;
 mod proxy;
 mod responses;
+mod log;
 
 const PAYLOAD_MAX_LENGTH: usize = 16384;
 const HEADER_MAX_LENGTH: usize = 16384;
 
 #[tokio::main]
 async fn main() {
+
     db::create_passwords()
         .await
         .expect("Failed to add the table 'passwords' in your database");
@@ -67,6 +69,7 @@ async fn main() {
         args::ARGS.ko_max_port
     );
     println!("        **NOT** TCP - {}", args::ARGS.ko_port.unwrap());
+    println!();
 
     loop {
         if let Ok((socket, _)) = listener.accept().await {

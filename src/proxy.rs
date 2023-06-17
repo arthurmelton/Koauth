@@ -2,6 +2,7 @@ use crate::args::ARGS;
 use crate::db::{get_password, set_password};
 use crate::responses::*;
 use crate::{HEADER_MAX_LENGTH, PAYLOAD_MAX_LENGTH};
+use crate::log;
 use serde_json::Value;
 use std::io::{Error, ErrorKind};
 use std::str;
@@ -18,7 +19,11 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
 
     let _ = inbound.peek(&mut input).await?;
 
+    let mut connection = None;
+
     if AUTH_REQUEST_START == input {
+        connection = Some(inbound.peer_addr()?);
+
         let mut headers = [0; HEADER_MAX_LENGTH];
         let length = inbound.try_read(&mut headers)?;
         let headers_string = str::from_utf8(&headers)?;
@@ -71,6 +76,7 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                                 match get_password(username.clone()).await {
                                                     Some(auth_password) => {
                                                         if password != auth_password {
+                                                            log!("{:?} has tried to login as {} but has used the wrong password", inbound.peer_addr()?, username);
                                                             write(
                                                                 &mut inbound,
                                                                 true,
@@ -81,8 +87,9 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                                     }
                                                     None => {
                                                         if ARGS.create {
-                                                            set_password(username, password).await?
+                                                            set_password(username.clone(), password).await?
                                                         } else {
+                                                            log!("{:?} has tried to login as {} but the account does not exist", inbound.peer_addr()?, username);
                                                             write(
                                                                 &mut inbound,
                                                                 true,
@@ -98,9 +105,11 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                                     .remove("secret");
                                                 let body = json.to_string();
 
+                                                log!("{:?} has login as {}", inbound.peer_addr()?, username);
                                                 write(&mut outbound, false, format!("POST /api/auth HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}", body.len(), body)).await?;
                                             }
                                             None => {
+                                                log!("{:?} has tried to login as {} but has not set a password", inbound.peer_addr()?, username);
                                                 write(
                                                     &mut inbound,
                                                     true,
@@ -111,26 +120,34 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                                         }
                                     }
                                     None => {
+                                        log!("{:?} has tried to login but has not set a username", inbound.peer_addr()?);
                                         write(&mut inbound, true, NO_USERNAME_SPECIFIED.to_string())
                                             .await?
                                     }
                                 },
                                 Err(_) => {
+                                    log!("{:?} has sent some badly formated json", inbound.peer_addr()?);
                                     write(&mut inbound, true, BADLY_FORMATED_JSON.to_string())
                                         .await?
                                 }
                             }
                         } else {
+                            log!("{:?} has sent data with too big of a payload", inbound.peer_addr()?);
                             write(&mut inbound, true, PAYLOAD_TOO_LARGE.to_string()).await?;
                         }
                     }
-                    None => write(&mut inbound, true, UNKOWN_LENGTH.to_string()).await?,
+                    None => {
+                        log!("{:?} has not set the length of the content", inbound.peer_addr()?);
+                        write(&mut inbound, true, UNKOWN_LENGTH.to_string()).await?;
+                    }
                 }
             }
             None => {
                 if length == HEADER_MAX_LENGTH {
+                    log!("{:?} has sent a request where the headers are too large", inbound.peer_addr()?);
                     write(&mut inbound, true, HEADERS_TOO_LARGE.to_string()).await?;
                 } else {
+                    log!("{:?} has sent a badly formated html request", inbound.peer_addr()?);
                     write(&mut inbound, true, BADLY_FORMATED_HTML.to_string()).await?;
                 }
             }
@@ -151,6 +168,10 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
     };
 
     tokio::try_join!(client_to_server, server_to_client)?;
+
+    if let Some(addr) = connection {
+        log!("{:?} has disconnected from the server", addr);
+    }
 
     Ok(())
 }

@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.71"
 async_once = "0.2.6"
+chrono = "0.4.26"
 clap = { version = "4.3.4", features = ["derive"] }
 lazy_static = "1.4.0"
 num-traits = "0.2.15"
