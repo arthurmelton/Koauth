@@ -45,7 +45,6 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
                 for i in headers_only {
                     if i.len() != 2 {
                         write(&mut inbound, true, BADLY_FORMATED_HTML.to_string()).await?;
-                        return Ok(());
                     }
                     if i.first().unwrap() == "content-length" {
                         content_length = Some(i.last().unwrap().parse::<usize>()?);

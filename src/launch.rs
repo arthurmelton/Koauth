@@ -49,7 +49,6 @@ pub async fn launch() -> anyhow::Result<()> {
             .await?;
     } else {
         println!("Your device cant run a ko server, if this is a error please report it at https://github.com/AMTitan/koauth");
-        return Err(Error::new(ErrorKind::Other, "").into());
     }
 
     Err(Error::new(ErrorKind::Other, "").into())
