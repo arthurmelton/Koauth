@@ -36,7 +36,12 @@ async fn main() {
 
     #[cfg(feature = "stats")]
     tokio::spawn(async {
-        kostats_web::host(ARGS.api_port.unwrap(), ARGS.ko_db.clone(), ARGS.ko_redis.clone()).await;
+        kostats_web::host(
+            ARGS.api_port.unwrap(),
+            ARGS.ko_db.clone(),
+            ARGS.ko_redis.clone(),
+        )
+        .await;
     });
 
     println!("                                   +              ");
@@ -72,11 +77,7 @@ async fn main() {
     println!("        TCP - {}, {}", ARGS.port, ARGS.api_port.unwrap());
     #[cfg(not(feature = "stats"))]
     println!("        TCP - {}", ARGS.port);
-    println!(
-        "        UDP - {}-{}",
-        ARGS.ko_min_port,
-        ARGS.ko_max_port
-    );
+    println!("        UDP - {}-{}", ARGS.ko_min_port, ARGS.ko_max_port);
     println!("        **NOT** TCP - {}", ARGS.ko_port.unwrap());
     println!();
 
