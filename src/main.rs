@@ -8,6 +8,8 @@ mod log;
 mod proxy;
 mod responses;
 
+use args::ARGS;
+
 const PAYLOAD_MAX_LENGTH: usize = 16384;
 const HEADER_MAX_LENGTH: usize = 16384;
 
@@ -17,12 +19,12 @@ async fn main() {
         .await
         .expect("Failed to add the table 'passwords' in your database");
 
-    let listener = TcpListener::bind(format!("0.0.0.0:{}", args::ARGS.port))
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", ARGS.port))
         .await
         .unwrap_or_else(|_| {
             panic!(
                 "Cant open port {}, make sure nothing else is using this",
-                args::ARGS.port
+                ARGS.port
             )
         });
 
@@ -30,6 +32,11 @@ async fn main() {
         let _ = launch::launch().await;
         println!("Make sure that your configuration and right and should be working. The server has exited");
         exit(1);
+    });
+
+    #[cfg(feature = "stats")]
+    tokio::spawn(async {
+        kostats_web::host(ARGS.api_port.unwrap(), ARGS.ko_db.clone(), ARGS.ko_redis.clone()).await;
     });
 
     println!("                                   +              ");
@@ -61,13 +68,16 @@ async fn main() {
     println!("    Version: koauth {}", env!("CARGO_PKG_VERSION"));
     println!();
     println!("    Port Forwarding:");
-    println!("        TCP - {}", args::ARGS.port);
+    #[cfg(feature = "stats")]
+    println!("        TCP - {}, {}", ARGS.port, ARGS.api_port.unwrap());
+    #[cfg(not(feature = "stats"))]
+    println!("        TCP - {}", ARGS.port);
     println!(
         "        UDP - {}-{}",
-        args::ARGS.ko_min_port,
-        args::ARGS.ko_max_port
+        ARGS.ko_min_port,
+        ARGS.ko_max_port
     );
-    println!("        **NOT** TCP - {}", args::ARGS.ko_port.unwrap());
+    println!("        **NOT** TCP - {}", ARGS.ko_port.unwrap());
     println!();
 
     loop {

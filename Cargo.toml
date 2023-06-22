@@ -15,3 +15,9 @@ num-traits = "0.2.15"
 serde_json = "1.0.96"
 sqlx = { version = "0.6.3", features = ["postgres", "macros", "runtime-tokio-native-tls", "bigdecimal"] }
 tokio = { version = "1.28.2", features = ["full"] }
+
+kostats-web = { git = "https://github.com/AMTitan/Kostats", optional = true }
+
+[features]
+default = ["stats"]
+stats = ["dep:kostats-web"]

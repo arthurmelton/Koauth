@@ -4,8 +4,17 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub static ref ARGS: Args = {
         let mut args = Args::parse();
+        #[cfg(feature = "stats")]
+        if args.ko_port.is_none() {
+            args.ko_port = Some(args.port - 2);
+        }
+        #[cfg(not(feature = "stats"))]
         if args.ko_port.is_none() {
             args.ko_port = Some(args.port - 1);
+        }
+        #[cfg(feature = "stats")]
+        if args.api_port.is_none() {
+            args.api_port = Some(args.port - 1);
         }
         if args.auth_db.is_none() {
             args.auth_db = Some(args.ko_db.clone());
@@ -33,8 +42,19 @@ pub struct Args {
     pub ko_path: String,
 
     /// The port that the real game runs on [default: port-1]
+    #[cfg(not(feature = "stats"))]
     #[arg(long)]
     pub ko_port: Option<u16>,
+
+    /// The port that the real game runs on [default: port-2]
+    #[cfg(feature = "stats")]
+    #[arg(long)]
+    pub ko_port: Option<u16>,
+
+    /// The port that the api runs on [default: port-1]
+    #[cfg(feature = "stats")]
+    #[arg(long)]
+    pub api_port: Option<u16>,
 
     /// The minium port that ko will use for udp
     #[arg(long, default_value_t = 23600)]
