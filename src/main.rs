@@ -74,7 +74,12 @@ async fn main() {
     println!();
     println!("    Port Forwarding:");
     #[cfg(feature = "stats")]
-    println!("        TCP - {}, {}", ARGS.port, ARGS.api_port.unwrap());
+    if ARGS.api_port.unwrap() == 0 {
+        println!("        TCP - {}", ARGS.port);
+    }
+    else {
+        println!("        TCP - {}, {}", ARGS.port, ARGS.api_port.unwrap());
+    }
     #[cfg(not(feature = "stats"))]
     println!("        TCP - {}", ARGS.port);
     println!("        UDP - {}-{}", ARGS.ko_min_port, ARGS.ko_max_port);

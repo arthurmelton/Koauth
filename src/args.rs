@@ -51,7 +51,7 @@ pub struct Args {
     #[arg(long)]
     pub ko_port: Option<u16>,
 
-    /// The port that the api runs on [default: port-1]
+    /// The port that the api runs on, set to 0 to disable [default: port-1]
     #[cfg(feature = "stats")]
     #[arg(long)]
     pub api_port: Option<u16>,
