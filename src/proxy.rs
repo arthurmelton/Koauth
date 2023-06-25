@@ -9,6 +9,7 @@ use std::str;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
+use tokio::time::{sleep, Duration};
 
 const AUTH_REQUEST_START: &[u8] = "POST /api/auth HTTP/1.1".as_bytes();
 
@@ -22,6 +23,8 @@ pub async fn handle_request(mut inbound: TcpStream) -> anyhow::Result<()> {
     let mut connection = None;
 
     if AUTH_REQUEST_START == input {
+        sleep(Duration::from_millis(100)).await;
+
         connection = Some(inbound.peer_addr()?);
 
         let mut headers = [0; HEADER_MAX_LENGTH];
