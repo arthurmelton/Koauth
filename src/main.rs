@@ -76,8 +76,7 @@ async fn main() {
     #[cfg(feature = "stats")]
     if ARGS.api_port.unwrap() == 0 {
         println!("        TCP - {}", ARGS.port);
-    }
-    else {
+    } else {
         println!("        TCP - {}, {}", ARGS.port, ARGS.api_port.unwrap());
     }
     #[cfg(not(feature = "stats"))]
